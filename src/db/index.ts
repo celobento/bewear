@@ -3,6 +3,8 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
+import * as schema from "./schema"; // Import your schema
+
 // Create a PostgreSQL connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -16,7 +18,7 @@ const pool = new Pool({
 });
 
 // Create drizzle instance with the pool
-export const db = drizzle(pool);
+export const db = drizzle(pool,{schema});
 
 // Graceful shutdown
 process.on("SIGINT", async () => {
