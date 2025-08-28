@@ -1,6 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "../../../components/ui/button";
@@ -31,6 +33,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const SignInForm = () => {
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,14 +43,29 @@ const SignInForm = () => {
   });
 
   async function onSubmit(values: FormValues) {
-    try {
-      const response = await authClient.signIn.email({
-        email: values.email,
-        password: values.password,
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    await authClient.signIn.email({
+      email: values.email,
+      password: values.password,
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx) => {
+          console.log(ctx.error.code);
+          if (ctx.error.code === "USER_NOT_FOUND") {
+            toast.error("User not found");
+            return form.setError("email", {
+              message: "User not found",
+            });
+          }
+          if (ctx.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+            toast.error("Invalid email or password");
+          } else {
+            toast.error("Failed to sign in");
+          }
+        },
+      },
+    });
   }
 
   return (
