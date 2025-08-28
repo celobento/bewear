@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "../../../components/ui/form";
 import { Input } from "../../../components/ui/input";
+import { authClient } from "../../../lib/auth-client";
 
 const formSchema = z.object({
   email: z.email("Invalid email address").min(1, "Email is required"),
@@ -38,9 +39,15 @@ const SignInForm = () => {
     },
   });
 
-  function onSubmit(values: FormValues) {
-    console.log("Form submitted with values:", values);
-    // Here you would typically handle the sign-in logic, e.g., API call
+  async function onSubmit(values: FormValues) {
+    try {
+      const response = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
