@@ -1,4 +1,5 @@
 import Image from "next/image";
+import CategorySelector from "../components/common/category-selector";
 import Header from "../components/common/header";
 import ProductList from "../components/common/product-list";
 import { db } from "../db";
@@ -9,7 +10,7 @@ export default async function Home() {
       variants: true,
     },
   });
-  console.log(products);
+  const categories = await db.query.categoryTable.findMany();
   return (
     <>
       <Header />
@@ -23,6 +24,11 @@ export default async function Home() {
           className="h-auto w-full px-5"
         />
         <ProductList title="Mais vendidos" products={products} />
+
+        <div className="px-5">
+          <CategorySelector categories={categories} />
+        </div>
+
         <Image
           src="/banner02.png"
           alt="Leve umma vida com estilo"
